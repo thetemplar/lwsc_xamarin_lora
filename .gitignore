@@ -1,0 +1,14 @@
+
+.vs/
+
+lwsc_xamarin_lora/lwsc_xamarin_lora.Android/obj/
+
+lwsc_xamarin_lora/lwsc_xamarin_lora.iOS/obj/
+
+lwsc_xamarin_lora/lwsc_xamarin_lora.iOS/bin/
+
+lwsc_xamarin_lora/lwsc_xamarin_lora.Android/bin/
+
+lwsc_xamarin_lora/lwsc_xamarin_lora/obj/
+
+lwsc_xamarin_lora/lwsc_xamarin_lora/bin/
