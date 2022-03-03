@@ -95,5 +95,15 @@ namespace lwsc_xamarin_lora.Views
 
             }
         }
+
+        private void ToolbarItem_Clear(object sender, EventArgs e)
+        {
+            BindingContext = _viewModel;
+            foreach(var x in _viewModel.Items)
+                x.WasSelected = false;
+
+            Mode.Text = "Select Only";
+            BindingContext = _viewModel;
+        }
     }
 }

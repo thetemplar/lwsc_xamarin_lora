@@ -8,6 +8,7 @@
              x:Name="BrowseItemsPage">
 
     <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Clear Selected" Clicked="ToolbarItem_Clear"/>
         <ToolbarItem x:Name="Mode" Text="Select Only" Clicked="ToolbarItem_Clicked"/>
     </ContentPage.ToolbarItems>
     <!--
