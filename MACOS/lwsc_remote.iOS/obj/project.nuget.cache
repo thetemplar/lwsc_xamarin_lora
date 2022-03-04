@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "XGPqefQDzaKyLjZm5pdD8XEuT1iaeUceklL+8Hv8s1GOMHc0omr9NQUO8cqWN0g/hGip6nW4qOMV4Uz+N2jJ9g==",
+  "success": true,
+  "projectFilePath": "/Users/user215794/Projects/lwsc_remote/lwsc_remote.iOS/lwsc_remote.iOS.csproj",
+  "expectedPackageFiles": [
+    "/Users/user215794/.nuget/packages/newtonsoft.json/13.0.1/newtonsoft.json.13.0.1.nupkg.sha512",
+    "/Users/user215794/.nuget/packages/system.numerics.vectors/4.5.0/system.numerics.vectors.4.5.0.nupkg.sha512",
+    "/Users/user215794/.nuget/packages/xamarin.essentials/1.6.1/xamarin.essentials.1.6.1.nupkg.sha512",
+    "/Users/user215794/.nuget/packages/xamarin.forms/5.0.0.2012/xamarin.forms.5.0.0.2012.nupkg.sha512"
+  ],
+  "logs": []
+}

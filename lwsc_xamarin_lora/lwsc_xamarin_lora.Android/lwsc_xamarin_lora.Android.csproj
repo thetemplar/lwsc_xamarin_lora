@@ -16,7 +16,6 @@
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
-    <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
     <TargetFrameworkVersion>v12.0</TargetFrameworkVersion>
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
     <AndroidUseAapt2>true</AndroidUseAapt2>
@@ -104,7 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\lwsc_xamarin_lora\lwsc_xamarin_lora.csproj">
-      <Project>{E6AE414E-E238-47C6-B650-445816F242CD}</Project>
+      <Project>{F87C880A-F67F-44A5-A11F-E63EFCC04547}</Project>
       <Name>lwsc_xamarin_lora</Name>
     </ProjectReference>
   </ItemGroup>

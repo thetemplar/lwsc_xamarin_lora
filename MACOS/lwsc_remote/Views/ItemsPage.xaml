@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="lwsc_remote.Views.ItemsPage"
+             Title="{Binding Title}"
+             xmlns:local="clr-namespace:lwsc_remote.ViewModels"  
+             xmlns:model="clr-namespace:lwsc_remote.Models"  
+             x:Name="BrowseItemsPage">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Clear Selected" Clicked="ToolbarItem_Clear"/>
+        <ToolbarItem x:Name="Mode" Text="Select Only" Clicked="ToolbarItem_Clicked"/>
+    </ContentPage.ToolbarItems>
+    <!--
+      x:DataType enables compiled bindings for better performance and compile time validation of binding expressions.
+      https://docs.microsoft.com/xamarin/xamarin-forms/app-fundamentals/data-binding/compiled-bindings
+    -->
+    <RefreshView x:DataType="local:ItemsViewModel" Command="{Binding LoadItemsCommand}" IsRefreshing="{Binding IsBusy, Mode=TwoWay}">
+        <!--<CollectionView x:Name="ItemsListView"
+                ItemsSource="{Binding Items}"
+                SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <StackLayout Padding="10" x:DataType="model:Machine">
+                        <Label Text="{Binding Name}" 
+                            LineBreakMode="NoWrap" 
+                            Style="{DynamicResource ListItemTextStyle}" 
+                            FontSize="16" />
+                        
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>-->
+        <ListView x:Name="functionList" ItemTapped="functionList_ItemTapped"  ItemsSource="{Binding Items}">
+            <ListView.ItemTemplate BackgroundColor="{Binding WasSelected, Converter={StaticResource ListViewColorConverter}}" >
+                <DataTemplate>
+                    <TextCell x:DataType="model:Machine" Text="{Binding Name}"></TextCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </RefreshView>
+</ContentPage>
