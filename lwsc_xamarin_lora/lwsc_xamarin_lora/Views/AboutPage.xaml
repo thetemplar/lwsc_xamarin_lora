@@ -15,12 +15,25 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Label Text="Willkommen !"></Label>
-    </Grid>
+    <StackLayout Orientation="Vertical" HorizontalOptions="Center">
+        <Label
+            HorizontalOptions="Center" 
+            Scale="2" 
+            Padding="30"
+            Text="Willkommen !">
+        </Label>
+        <Button 
+            Clicked="ShowIP"
+            Text="ShowIP"
+            >
+
+        </Button>
+        <Button 
+            x:Name="btInformation"
+            Clicked="ShowInformation"
+            Text="Show Information">
+
+        </Button>
+    </StackLayout>
 
 </ContentPage>

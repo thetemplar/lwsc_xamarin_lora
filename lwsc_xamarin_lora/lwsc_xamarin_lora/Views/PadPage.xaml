@@ -55,8 +55,7 @@
                Text=" - "
                Grid.Row="0"
                Grid.Column="0"
-            HorizontalOptions="FillAndExpand"
-            VerticalOptions="FillAndExpand">
+               x:Name="bt_0_0">
                     <Button.Behaviors>
                         <behaviors:LongPressBehavior LongPressed="MyButton_LongPressed" ShortPressed="MyButton_Pressed" TagText="bt_0_0"/>
                     </Button.Behaviors>
@@ -65,7 +64,8 @@
                 <Button
                Text=" - "
                Grid.Row="1"
-               Grid.Column="0">
+               Grid.Column="0"
+               x:Name="bt_0_1">
                     <Button.Behaviors>
                         <behaviors:LongPressBehavior LongPressed="MyButton_LongPressed" ShortPressed="MyButton_Pressed" TagText="bt_0_1"/>
                     </Button.Behaviors>
@@ -74,7 +74,8 @@
                 <Button
                Text=" - "
                Grid.Row="2"
-               Grid.Column="0">
+               Grid.Column="0"
+               x:Name="bt_0_2">
                     <Button.Behaviors>
                         <behaviors:LongPressBehavior LongPressed="MyButton_LongPressed" ShortPressed="MyButton_Pressed" TagText="bt_0_2"/>
                     </Button.Behaviors>
@@ -83,7 +84,8 @@
                 <Button
                Text=" - "
                Grid.Row="3"
-               Grid.Column="0">
+               Grid.Column="0"
+               x:Name="bt_0_3">
                     <Button.Behaviors>
                         <behaviors:LongPressBehavior LongPressed="MyButton_LongPressed" ShortPressed="MyButton_Pressed" TagText="bt_0_3"/>
                     </Button.Behaviors>
@@ -92,7 +94,8 @@
                 <Button
                Text=" - "
                Grid.Row="4"
-               Grid.Column="0">
+               Grid.Column="0"
+               x:Name="bt_0_4">
                     <Button.Behaviors>
                         <behaviors:LongPressBehavior LongPressed="MyButton_LongPressed" ShortPressed="MyButton_Pressed" TagText="bt_0_4"/>
                     </Button.Behaviors>
