@@ -81,7 +81,11 @@ namespace lwsc_xamarin_lora.Views
 
             if (parsedJson.result == "success")
             {
-                DependencyService.Get<IMessage>().ShortAlert(App.IpAddress + ": " + res);
+                if(App.ShowInformation)
+                    DependencyService.Get<IMessage>().ShortAlert(App.IpAddress + ": " + res);
+
+                if (((LongPressBehavior)sender).Button != null)
+                    ((LongPressBehavior)sender).Button.TextColor = Color.White;
 
                 try
                 {
@@ -105,7 +109,11 @@ namespace lwsc_xamarin_lora.Views
             }
             else
             {
-                DependencyService.Get<IMessage>().ShortAlert(App.IpAddress + ": " + res);
+                if (App.ShowInformation)
+                    DependencyService.Get<IMessage>().ShortAlert(App.IpAddress + ": " + res);
+
+                if(((LongPressBehavior)sender).Button != null)
+                    ((LongPressBehavior)sender).Button.TextColor = Color.Salmon;
                 //return false;
             }
 
@@ -116,6 +124,8 @@ namespace lwsc_xamarin_lora.Views
         {
             overlay_machine.IsVisible = true;
             _buttonToChange = ((LongPressBehavior)sender).Button;
+            if (_buttonToChange == null)
+                _buttonToChange = FindByName(((LongPressBehavior)sender).TagText) as Button;
         }
 
         private void OnMachineCancelButtonClicked(object sender, EventArgs e)

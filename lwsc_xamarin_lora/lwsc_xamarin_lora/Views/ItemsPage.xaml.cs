@@ -49,7 +49,8 @@ namespace lwsc_xamarin_lora.Views
 
             if (parsedJson.result == "success")
             {
-                DependencyService.Get<IMessage>().ShortAlert(App.IpAddress + ": " + res);
+                if (App.ShowInformation)
+                    DependencyService.Get<IMessage>().ShortAlert(App.IpAddress + ": " + res);
 
                 this.functionList.SelectedItem = null;
                 try
@@ -74,7 +75,8 @@ namespace lwsc_xamarin_lora.Views
             }
             else
             {
-                DependencyService.Get<IMessage>().ShortAlert(App.IpAddress + ": " + res);
+                if (App.ShowInformation)
+                    DependencyService.Get<IMessage>().ShortAlert(App.IpAddress + ": " + res);
                 //return false;
             }
 

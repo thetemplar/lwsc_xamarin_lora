@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <SelectedDevice>CUBOT QUEST</SelectedDevice>
-    <SelectedPlatformGroup>PhysicalDevice</SelectedPlatformGroup>
-    <ActiveDebugProfile>CUBOT QUEST</ActiveDebugProfile>
+    <SelectedDevice>tablet_xxh-dpi_7_6in_-_api_31</SelectedDevice>
+    <SelectedPlatformGroup>Emulator</SelectedPlatformGroup>
+    <ActiveDebugProfile>tablet_xxh-dpi_7_6in_-_api_31</ActiveDebugProfile>
     <DefaultDevice>tablet_xxh-dpi_7_6in_-_api_31</DefaultDevice>
     <AndroidDesignerPreferredTheme>MainTheme</AndroidDesignerPreferredTheme>
   </PropertyGroup>

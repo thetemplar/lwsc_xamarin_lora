@@ -21,6 +21,7 @@ namespace lwsc_xamarin_lora
             EnableBroadcast = true
         };
         public static string IpAddress = "";
+        public static bool ShowInformation = false;
 
         public App()
         {
