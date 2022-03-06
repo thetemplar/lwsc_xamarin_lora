@@ -18,6 +18,7 @@ namespace lwsc_xamarin_lora.Services
             if (res == null || res == "null")
                 return;
             items = JsonConvert.DeserializeObject<Machine[]>(res).ToList();
+            items = items.OrderBy(x => x.Name).ToList();
         }
 
         public async Task<bool> AddItemAsync(Machine item)

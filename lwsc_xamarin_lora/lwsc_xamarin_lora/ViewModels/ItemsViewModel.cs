@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -16,14 +17,14 @@ namespace lwsc_xamarin_lora.ViewModels
     {
         private Machine _selectedItem;
 
-        public ObservableCollection<Machine> Items { get; }
+        public ObservableCollection<Machine> Items { get; private set; }
         public Command LoadItemsCommand { get; }
         public Command AddItemCommand { get; }
         public Command<Machine> ItemTapped { get; }
 
         public ItemsViewModel()
         {
-            Title = "Browse";
+            Title = "Auslöser";
             Items = new ObservableCollection<Machine>();
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
 
@@ -33,7 +34,7 @@ namespace lwsc_xamarin_lora.ViewModels
         }
         public ItemsViewModel(IEnumerable<Machine> clone)
         {
-            Title = "Browse";
+            Title = "Auslöser";
             Items = new ObservableCollection<Machine>(clone);
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
 
@@ -54,6 +55,7 @@ namespace lwsc_xamarin_lora.ViewModels
                 {
                     Items.Add(item);
                 }
+                Items = new ObservableCollection<Machine>(Items.OrderBy(x => x.Name));
             }
             catch (Exception ex)
             {

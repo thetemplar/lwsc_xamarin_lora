@@ -3,5 +3,9 @@
   <PropertyGroup>
     <DeveloperId />
     <DevelopmentTeamId />
+    <SelectedDevice>Local Device</SelectedDevice>
+    <SelectedPlatformGroup>LocalDevice</SelectedPlatformGroup>
+    <ActiveDebugProfile>Local Device</ActiveDebugProfile>
+    <DefaultDevice>iPhone 13 iOS 15.2</DefaultDevice>
   </PropertyGroup>
 </Project>

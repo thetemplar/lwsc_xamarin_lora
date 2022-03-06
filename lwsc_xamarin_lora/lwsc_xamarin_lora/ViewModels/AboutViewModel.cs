@@ -9,10 +9,7 @@ namespace lwsc_xamarin_lora.ViewModels
     {
         public AboutViewModel()
         {
-            Title = "About";
-            OpenWebCommand = new Command(async () => await Browser.OpenAsync("https://aka.ms/xamarin-quickstart"));
+            Title = "Willkommen";
         }
-
-        public ICommand OpenWebCommand { get; }
     }
 }

@@ -20,104 +20,78 @@ namespace lwsc_xamarin_lora.Views
     {
         ItemsViewModel _viewModel;
         private Button _buttonToChange;
+        bool changeSize = false;
 
         public PadPage()
         {
             BindingContext = _viewModel = new ItemsViewModel();
             _viewModel.LoadItemsCommand.Execute(_viewModel);
+            _viewModel.Items.Insert(0, new Machine() { Name = " ", MachineID = "-1", FunctionID = "-1" });
+
             InitializeComponent();
 
             string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "pad-tmp");
             if (File.Exists(p))
             {
                 var res = File.ReadAllText(p);
-                var entries = res.Split(';');
-
-                ButtonGrid.RowDefinitions.Clear();
-                ButtonGrid.ColumnDefinitions.Clear();
-                ButtonGrid.Children.Clear();
-                ButtonGrid.VerticalOptions = LayoutOptions.FillAndExpand;
-                ButtonGrid.HorizontalOptions = LayoutOptions.FillAndExpand;
-
-                var w = int.Parse(entries[0]);
-                var h = int.Parse(entries[1]);
-
-                for (int i = 0; i < w; i++)
-                    ButtonGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
-                for (int i = 0; i < h; i++)
-                    ButtonGrid.RowDefinitions.Add(new RowDefinition() { });
-
-                int c = 2;
-                for (int i = 0; i < h; i++)
-                    for (int j = 0; j < w; j++)
-                    {
-                        var bt = new Button() { Text = entries[c], VerticalOptions = LayoutOptions.FillAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
-                        var lp = new LongPressBehavior();
-                        lp.ShortPressed += MyButton_Pressed;
-                        lp.LongPressed += MyButton_LongPressed;
-                        lp.TagText = entries[c];
-                        lp.Button = bt;
-                        bt.Behaviors.Add(lp);
-                        ButtonGrid.Children.Add(bt, j, i);
-                        c++;
-                    }
+                string[] entries = res.Split(';');
+                LoadGrid(int.Parse(entries[0]), int.Parse(entries[1]), entries.Skip(2));
             }
+        }
+
+        private void LoadGrid(int w, int h, IEnumerable<string> entries)
+        {
+            ButtonGrid.RowDefinitions.Clear();
+            ButtonGrid.ColumnDefinitions.Clear();
+            ButtonGrid.Children.Clear();
+            ButtonGrid.VerticalOptions = LayoutOptions.FillAndExpand;
+            ButtonGrid.HorizontalOptions = LayoutOptions.FillAndExpand;
+
+            for (int i = 0; i < w; i++)
+                ButtonGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
+            for (int i = 0; i < h; i++)
+                ButtonGrid.RowDefinitions.Add(new RowDefinition() { });
+
+            for (int i = 0; i < h; i++)
+                for (int j = 0; j < w; j++)
+                {
+                    string name = (entries == null) ? " " : entries.ElementAt(i * w + j);
+
+                    var bt = new Button() { Text = name, VerticalOptions = LayoutOptions.FillAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
+                    var lp = new LongPressBehavior();
+                    lp.ShortPressed += MyButton_Pressed;
+                    lp.LongPressed += MyButton_LongPressed;
+                    lp.TagText = name;
+                    lp.Button = bt;
+                    bt.Behaviors.Add(lp);
+                    ButtonGrid.Children.Add(bt, j, i);
+                }
         }
 
         public void MyButton_Pressed(object sender, EventArgs e)
         {
             var t = ((LongPressBehavior)sender).TagText;
             Machine item = _viewModel.Items.FirstOrDefault(x => x.Name == t);
-            if(item == null)
+            if (item == null)
             {
                 DependencyService.Get<IMessage>().ShortAlert("Not found.");
                 return;
             }
-
-            item.WasSelected = true;
-            var status = RESTful.Query("/fire?id=" + item.MachineID + "&f_id=" + item.FunctionID, RESTful.RESTType.POST, out string res);
-
-            var parsedJson = JsonConvert.DeserializeObject<FireRes>(res);
-
-            if (parsedJson.result == "success")
+            if (item.Name == " " || item.MachineID == "-1" || item.FunctionID == "-1")
             {
-                if(App.ShowInformation)
-                    DependencyService.Get<IMessage>().ShortAlert(App.IpAddress + ": " + res);
+                return;
+            }
 
+            if (RESTful.Fire(item))
+            {
                 if (((LongPressBehavior)sender).Button != null)
                     ((LongPressBehavior)sender).Button.TextColor = Color.White;
-
-                try
-                {
-                    // Use default vibration length
-                    Vibration.Vibrate();
-
-                    // Or use specified time
-                    var duration = TimeSpan.FromSeconds(0.3);
-                    Vibration.Vibrate(duration);
-                }
-                catch (FeatureNotSupportedException ex)
-                {
-                    DependencyService.Get<IMessage>().ShortAlert("Vibration not supported on device");
-                    //return false;
-                }
-                catch (Exception ex)
-                {
-                    DependencyService.Get<IMessage>().ShortAlert("Vibration: Other error has occurred.");
-                    //return false;
-                }
             }
             else
             {
-                if (App.ShowInformation)
-                    DependencyService.Get<IMessage>().ShortAlert(App.IpAddress + ": " + res);
-
-                if(((LongPressBehavior)sender).Button != null)
+                if (((LongPressBehavior)sender).Button != null)
                     ((LongPressBehavior)sender).Button.TextColor = Color.Salmon;
-                //return false;
             }
-
-            //return true;
         }
 
         public void MyButton_LongPressed(object sender, EventArgs e)
@@ -135,26 +109,28 @@ namespace lwsc_xamarin_lora.Views
 
         private void OnMachineChangeButtonClicked(object sender, EventArgs e)
         {
+            string m = " ";
             if (overlay_picker.SelectedIndex != -1)
             {
-                var bt = _buttonToChange;
-                bt.Text = overlay_picker.Items[overlay_picker.SelectedIndex];
-                var b = (LongPressBehavior)bt.Behaviors[0];
-                b.TagText = overlay_picker.Items[overlay_picker.SelectedIndex];
-
-
-                overlay_picker.SelectedIndex = -1;
-
-
-                string s = "";
-                s += ButtonGrid.ColumnDefinitions.Count() + ";";
-                s += ButtonGrid.RowDefinitions.Count() + ";";
-
-                for (int i = 0; i < ButtonGrid.Children.Count(); i++)
-                    s += ((Button)ButtonGrid.Children[i]).Text + ";";
-                string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "pad-tmp");
-                File.WriteAllText(p, s);
+                m = overlay_picker.Items[overlay_picker.SelectedIndex];
             }
+
+            var bt = _buttonToChange;
+            bt.Text = m;
+            var b = (LongPressBehavior)bt.Behaviors[0];
+            b.TagText = m;
+
+            overlay_picker.SelectedIndex = -1;
+
+
+            string s = "";
+            s += ButtonGrid.ColumnDefinitions.Count() + ";";
+            s += ButtonGrid.RowDefinitions.Count() + ";";
+
+            for (int i = 0; i < ButtonGrid.Children.Count(); i++)
+                s += ((Button)ButtonGrid.Children[i]).Text + ";";
+            string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "pad-tmp");
+            File.WriteAllText(p, s);
             overlay_machine.IsVisible = false;
         }
 
@@ -170,55 +146,10 @@ namespace lwsc_xamarin_lora.Views
                 overlay_newpad.IsVisible = true;
                 return;
             }
-            ButtonGrid.RowDefinitions.Clear();
-            ButtonGrid.ColumnDefinitions.Clear();
-            ButtonGrid.Children.Clear();
-            ButtonGrid.VerticalOptions = LayoutOptions.FillAndExpand;
-            ButtonGrid.HorizontalOptions = LayoutOptions.FillAndExpand;
-
-            var w = int.Parse(NewPadWidth.Text);
-            var h = int.Parse(NewPadHeight.Text);
-
-            for (int i = 0; i < w; i++)
-                ButtonGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
-            for (int i = 0; i < h; i++)
-                ButtonGrid.RowDefinitions.Add(new RowDefinition() {});
-
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                {
-                    var bt = new Button() { Text = "Change me!", VerticalOptions = LayoutOptions.FillAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
-                    var lp = new LongPressBehavior();
-                    lp.ShortPressed += MyButton_Pressed;
-                    lp.LongPressed += MyButton_LongPressed;
-                    lp.TagText = "bt_" + j + "_" + i;
-                    lp.Button = bt;
-                    bt.Behaviors.Add(lp);
-                    ButtonGrid.Children.Add(bt, j, i);
-                }
+            LoadGrid(int.Parse(NewPadWidth.Text), int.Parse(NewPadHeight.Text), null);
             overlay_newpad.IsVisible = false;
         }
 
-        private void OnNewPadClicked(object sender, EventArgs e)
-        {
-            overlay_newpad.IsVisible = true;
-        }
-
-        private void OnSaveClicked(object sender, EventArgs e)
-        {
-            overlay_save.IsVisible = true;
-        }
-
-        private void OnLoadClicked(object sender, EventArgs e)
-        {
-            var status = RESTful.Query("/file_list", RESTful.RESTType.GET, out string res);
-            var files = JsonConvert.DeserializeObject<List<string>>(res);
-            overlay_load_picker.Items.Clear();
-            if (files != null && files.Count > 1)
-                foreach (var file in files.Where(x => x.StartsWith("pad_")))
-                    overlay_load_picker.Items.Add(file.Substring(4));
-            overlay_load.IsVisible = true;
-        }
 
         private void OnSaveCancelButtonClicked(object sender, EventArgs e)
         {
@@ -234,30 +165,10 @@ namespace lwsc_xamarin_lora.Views
 
             for (int i = 0; i < ButtonGrid.Children.Count(); i++)
                 s += ((Button)ButtonGrid.Children[i]).Text + ";";
-            string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "pad_" + SaveName.Text);
+            string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "pad_" + SaveName.Text.Replace("[", "").Replace("]", "").Replace(",", ".").Replace("\\", "").Replace("/", ""));
             File.WriteAllText(p, s);
 
-
-
-            IPEndPoint remoteEP;
-            IPAddress ipAddress;
-            if (App.IpAddress.Length > 0)
-            {
-                ipAddress = IPAddress.Parse(App.IpAddress);
-                remoteEP = new IPEndPoint(ipAddress, 80);
-            }
-            else
-            {
-                var resolvedIp = Dns.GetHostEntry("lwsc.ddns.net");
-                var _dnsCache = resolvedIp.AddressList[0];
-                remoteEP = new IPEndPoint(_dnsCache, 8280);
-            }
-
-
-            using (WebClient client = new WebClient())
-            {
-                client.UploadFile("http://" + remoteEP + "/upload", p);
-            }
+            RESTful.UploadFile("/upload", p, out string _);
         }
 
         private void OnLoadCancelButtonClicked(object sender, EventArgs e)
@@ -276,36 +187,34 @@ namespace lwsc_xamarin_lora.Views
 
             var entries = res.Split(';');
 
-            ButtonGrid.RowDefinitions.Clear();
-            ButtonGrid.ColumnDefinitions.Clear();
-            ButtonGrid.Children.Clear();
-            ButtonGrid.VerticalOptions = LayoutOptions.FillAndExpand;
-            ButtonGrid.HorizontalOptions = LayoutOptions.FillAndExpand;
-
-            var w = int.Parse(entries[0]);
-            var h = int.Parse(entries[1]);
-
-            for (int i = 0; i < w; i++)
-                ButtonGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
-            for (int i = 0; i < h; i++)
-                ButtonGrid.RowDefinitions.Add(new RowDefinition() { });
-
-            int c = 2;
-            for (int i = 0; i < h; i++)
-                for (int j = 0; j < w; j++)
-                {
-                    var bt = new Button() { Text = entries[c], VerticalOptions = LayoutOptions.FillAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
-                    var lp = new LongPressBehavior();
-                    lp.ShortPressed += MyButton_Pressed;
-                    lp.LongPressed += MyButton_LongPressed;
-                    lp.TagText = entries[c];
-                    lp.Button = bt;
-                    bt.Behaviors.Add(lp);
-                    ButtonGrid.Children.Add(bt, j, i);
-                    c++;
-                }
+            LoadGrid(int.Parse(entries[0]), int.Parse(entries[1]), entries.Skip(2));
 
             overlay_load.IsVisible = false;
+        }
+
+        private void ToolbarItem_New(object sender, EventArgs e)
+        {
+            changeSize = false;
+            overlay_newpad.IsVisible = true;
+        }
+
+        private void ToolbarItem_Save(object sender, EventArgs e)
+        {
+            overlay_save.IsVisible = true;
+        }
+
+        private void ToolbarItem_Load(object sender, EventArgs e)
+        {
+            var status = RESTful.Query("/file_list", RESTful.RESTType.GET, out string res);
+            if(res.StartsWith("[") && res.EndsWith("]"))
+            {
+                string[] files = res.Replace("[", "").Replace("]", "").Split(',');
+                overlay_load_picker.Items.Clear();
+                if (files != null && files.Count() > 1)
+                    foreach (var file in files.Where(x => x.StartsWith("pad_")))
+                        overlay_load_picker.Items.Add(file.Substring(4));
+            }
+            overlay_load.IsVisible = true;
         }
     }
 }

@@ -8,8 +8,8 @@
              x:Name="BrowseItemsPage">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Clear Selected" Clicked="ToolbarItem_Clear"/>
-        <ToolbarItem x:Name="Mode" Text="Select Only" Clicked="ToolbarItem_Clicked"/>
+        <ToolbarItem Text="Zurücksetzen" Clicked="ToolbarItem_Clear"/>
+        <ToolbarItem x:Name="Mode" Text="Selektierte" Clicked="ToolbarItem_Clicked"/>
     </ContentPage.ToolbarItems>
     <!--
       x:DataType enables compiled bindings for better performance and compile time validation of binding expressions.

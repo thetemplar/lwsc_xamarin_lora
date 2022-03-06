@@ -7,6 +7,13 @@
              xmlns:model="clr-namespace:lwsc_xamarin_lora.Models"
              xmlns:behaviors="clr-namespace:lwsc_xamarin_lora.Services"
              x:Name="BrowsePadPage">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Neu" Clicked="ToolbarItem_New"/>
+        <ToolbarItem Text="Speichern" Clicked="ToolbarItem_Save"/>
+        <ToolbarItem Text="Laden" Clicked="ToolbarItem_Load"/>
+    </ContentPage.ToolbarItems>
+    
     <AbsoluteLayout>
 
         <StackLayout
@@ -15,27 +22,8 @@
             AbsoluteLayout.LayoutBounds="0,0,1,1"
             AbsoluteLayout.LayoutFlags="All"
             BackgroundColor="Bisque">
-            <StackLayout
-                Orientation="Horizontal"
-                HorizontalOptions="Center"
-                Scale="0.5">
-
-                <Button Text="New Pad" FontSize="Large"  
-                          VerticalOptions="CenterAndExpand"  
-                          HorizontalOptions="Center"  
-                          Clicked="OnNewPadClicked"/>
-
-                <Button Text="Save" FontSize="Large"  
-                            VerticalOptions="CenterAndExpand"  
-                            HorizontalOptions="Center"  
-                            Clicked="OnSaveClicked" />
-
-                <Button Text="Load" FontSize="Large"  
-                            VerticalOptions="CenterAndExpand"  
-                            HorizontalOptions="Center"  
-                            Clicked="OnLoadClicked" />
-            </StackLayout>
             <Grid
+            Padding="5"
             BackgroundColor="AliceBlue"
             HorizontalOptions="FillAndExpand"
             VerticalOptions="FillAndExpand"
@@ -189,7 +177,7 @@
                    Padding="10">
 
                 <StackLayout Orientation="Vertical" HorizontalOptions="Center" VerticalOptions="End">
-                    <Entry MaxLength="2" Margin="4" WidthRequest="100" x:Name="SaveName">
+                    <Entry MaxLength="25" Margin="4" WidthRequest="100" x:Name="SaveName">
                     </Entry>
                 </StackLayout>
                 <StackLayout Orientation="Horizontal" HorizontalOptions="Center">

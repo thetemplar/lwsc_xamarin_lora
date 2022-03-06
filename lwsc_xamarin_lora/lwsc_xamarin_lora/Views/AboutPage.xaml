@@ -20,18 +20,31 @@
             HorizontalOptions="Center" 
             Scale="2" 
             Padding="30"
-            Text="Willkommen !">
+            Margin="20"
+            Text="Willkommen beim LWSC!">
         </Label>
         <Button 
             Clicked="ShowIP"
-            Text="ShowIP"
+            Text="Show Gateway-IP / Internet"
+            Padding="20"
+            Margin="20"
             >
 
         </Button>
         <Button 
             x:Name="btInformation"
             Clicked="ShowInformation"
-            Text="Show Information">
+            Padding="20"
+            Margin="20"
+            Text="Auslöse-Informationen anzeigen">
+
+        </Button>
+        <Button 
+            x:Name="btExperimental"
+            Clicked="EnableExperimental"
+            Padding="20"
+            Margin="20"
+            Text="Experimental aktivieren">
 
         </Button>
     </StackLayout>

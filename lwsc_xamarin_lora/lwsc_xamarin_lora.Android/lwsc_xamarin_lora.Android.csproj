@@ -8,7 +8,7 @@
     <TemplateGuid>{6968b3a4-1835-46a3-ac5c-1ae33b475983}</TemplateGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>lwsc_xamarin_lora.Droid</RootNamespace>
-    <AssemblyName>lwsc_xamarin_lora.Android</AssemblyName>
+    <AssemblyName>LWSC-Remote</AssemblyName>
     <Deterministic>True</Deterministic>
     <AndroidApplication>True</AndroidApplication>
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>

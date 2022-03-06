@@ -22,6 +22,7 @@ namespace lwsc_xamarin_lora
         };
         public static string IpAddress = "";
         public static bool ShowInformation = false;
+        public static bool Experimental = false;
 
         public App()
         {
@@ -31,25 +32,6 @@ namespace lwsc_xamarin_lora
             _udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, 5556));
             _udpClient.BeginReceive(OnUdpDataReceived, _udpClient);
 
-            /*
-            Task.Run(() =>
-            {
-                bool waiting = true;
-                while (waiting)
-                {
-                    var recvBuffer = udpClient.Receive(ref from);
-                    var val = Encoding.UTF8.GetString(recvBuffer);
-                    var m = Regex.Match(val, @"WIFIBRIDGE ((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)) (ETH|WIFI)");
-                    if (m.Success)
-                    {
-                        DependencyService.Get<IMessage>().LongAlert(val);
-                        IpAddress = m.Groups[1].Value;
-                        waiting = false;
-                    }
-                }
-            });*/
-
-            //DependencyService.Get<IMessage>().LongAlert("Hello");
             DependencyService.Register<MockDataStore>();
             MainPage = new AppShell();
         }
@@ -72,6 +54,7 @@ namespace lwsc_xamarin_lora
             if (m.Success)
             {
                 IpAddress = m.Groups[1].Value;
+                DependencyService.Get<IMessage>().ShortAlert("Found WiFi Gateway");
             } 
             else
             {
