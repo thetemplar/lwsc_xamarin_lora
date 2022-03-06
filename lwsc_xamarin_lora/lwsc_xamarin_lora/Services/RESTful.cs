@@ -161,7 +161,7 @@ namespace lwsc_xamarin_lora.Services
             else
             {
                 var request = (HttpWebRequest)WebRequest.Create("http://" + remoteEP.ToString() + url);
-                request.Timeout = 500;
+                request.Timeout = 2000;
 
                 switch (type)
                 {
