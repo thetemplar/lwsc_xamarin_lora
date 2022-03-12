@@ -11,6 +11,11 @@ namespace lwsc_xamarin_lora.Views
         public AboutPage()
         {
             InitializeComponent();
+
+            if (!RESTful.IsInGPSRange(out double dist))
+            {
+                DependencyService.Get<IMessage>().ShortAlert("GPS: Nicht auf dem Gelände!");
+            }
         }
 
         private void ShowInformation(object sender, EventArgs e)

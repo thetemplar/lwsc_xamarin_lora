@@ -17,12 +17,18 @@ namespace lwsc_xamarin_lora.Droid
     {        
         public void LongAlert(string message)
         {
-            Toast.MakeText(Application.Context, message, ToastLength.Long).Show();
+            Xamarin.Forms.Device.BeginInvokeOnMainThread(async () =>
+            {
+                Toast.MakeText(Application.Context, message, ToastLength.Long).Show();
+            });
         }
 
         public void ShortAlert(string message)
         {
-            Toast.MakeText(Application.Context, message, ToastLength.Short).Show();
+            Xamarin.Forms.Device.BeginInvokeOnMainThread(async () =>
+            {
+                Toast.MakeText(Application.Context, message, ToastLength.Short).Show();
+            });
         }
     }
 }

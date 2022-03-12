@@ -6,6 +6,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 
@@ -14,6 +15,8 @@ namespace lwsc_xamarin_lora.Services
     internal class RESTful
     {
         static IPAddress _dnsCache;
+
+
         public enum RESTType
         {
             GET,
@@ -26,8 +29,63 @@ namespace lwsc_xamarin_lora.Services
             public string result;
         }
 
+        static public bool IsInGPSRange(out double dist)
+        {
+            dist = -1;
+            try
+            {
+                var location = Geolocation.GetLastKnownLocationAsync().Result;
+
+                if (location == null)
+                {
+                    var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
+                    var cts = new CancellationTokenSource();
+                    cts.CancelAfter(TimeSpan.FromSeconds(10));
+                    location = Geolocation.GetLocationAsync(request, cts.Token).Result;
+                }
+
+                if (location != null)
+                {
+                    Console.WriteLine($"Latitude: {location.Latitude}, Longitude: {location.Longitude}, Altitude: {location.Altitude}");
+                    Location lwsc = new Location(50.651667, 9.422954);
+                    dist = Location.CalculateDistance(location, lwsc, DistanceUnits.Kilometers);
+                    if (dist <= 1)
+                        return true;
+                }
+            }
+            catch (FeatureNotSupportedException fnsEx)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("GPS not supported.");
+                return false;
+            }
+            catch (FeatureNotEnabledException fneEx)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("GPS not enabled.");
+                return false;
+            }
+            catch (PermissionException pEx)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("GPS no permission.");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("GPS error.");
+                return false;
+            }
+            return false;
+        }
+
+
         static public bool Fire(Machine item)
         {
+            if (App.IpAddress.Length == 0 && !IsInGPSRange(out double dist))
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Nicht auf dem Gelände! (" + Math.Round(dist) + "km)");
+                return false;
+            }
+            //DependencyService.Get<IMessage>().ShortAlert("Auf dem Gelände, aber kein WLAN");
+
             var status = RESTful.Query("/fire?id=" + item.MachineID + "&f_id=" + item.FunctionID, RESTful.RESTType.POST, out string res, true);
             if (status != HttpStatusCode.OK)
                 return false;

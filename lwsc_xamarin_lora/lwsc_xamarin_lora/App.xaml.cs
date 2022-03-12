@@ -54,7 +54,6 @@ namespace lwsc_xamarin_lora
             if (m.Success)
             {
                 IpAddress = m.Groups[1].Value;
-                DependencyService.Get<IMessage>().ShortAlert("Found WiFi Gateway");
             } 
             else
             {
