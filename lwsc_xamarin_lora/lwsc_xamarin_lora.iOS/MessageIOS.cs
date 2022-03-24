@@ -28,12 +28,15 @@ namespace lwsc_xamarin_lora.iOS
 
         void ShowAlert(string message, double seconds)
         {
-            alertDelay = NSTimer.CreateScheduledTimer(seconds, (obj) =>
+            Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
             {
-                dismissMessage();
+                alertDelay = NSTimer.CreateScheduledTimer(seconds, (obj) =>
+                {
+                    dismissMessage();
+                });
+                alert = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
+                UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alert, true, null);
             });
-            alert = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
-            UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alert, true, null);
         }
 
         void dismissMessage()
