@@ -168,7 +168,7 @@ namespace lwsc_xamarin_lora.Views
             string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "pad_" + SaveName.Text.Replace("[", "").Replace("]", "").Replace(",", ".").Replace("\\", "").Replace("/", ""));
             File.WriteAllText(p, s);
 
-            RESTful.UploadFile("/upload", p, out string _);
+            RESTful.UploadFile("/upload?username=" + App.Username + "&password=" + App.Password, p, out string _);
         }
 
         private void OnLoadCancelButtonClicked(object sender, EventArgs e)
@@ -183,7 +183,7 @@ namespace lwsc_xamarin_lora.Views
                 overlay_load.IsVisible = false;
                 return;
             }
-            var status = RESTful.Query("/file?filename=pad_"+ overlay_load_picker.Items[overlay_load_picker.SelectedIndex], RESTful.RESTType.GET, out string res);
+            var status = RESTful.Query("/file?username=" + App.Username + "&password=" + App.Password + "&filename=pad_" + overlay_load_picker.Items[overlay_load_picker.SelectedIndex], RESTful.RESTType.GET, out string res);
 
             var entries = res.Split(';');
 
@@ -205,7 +205,8 @@ namespace lwsc_xamarin_lora.Views
 
         private void ToolbarItem_Load(object sender, EventArgs e)
         {
-            var status = RESTful.Query("/file_list", RESTful.RESTType.GET, out string res);
+            var status = RESTful.Query("/file_list?username=" + App.Username + "&password=" + App.Password + "", RESTful.RESTType.GET, out string res);
+            res = res.Replace("\"", "");
             if(res.StartsWith("[") && res.EndsWith("]"))
             {
                 string[] files = res.Replace("[", "").Replace("]", "").Split(',');

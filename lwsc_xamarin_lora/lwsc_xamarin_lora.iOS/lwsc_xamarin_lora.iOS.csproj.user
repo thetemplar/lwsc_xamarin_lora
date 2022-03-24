@@ -5,9 +5,9 @@
     </DeveloperId>
     <DevelopmentTeamId>
     </DevelopmentTeamId>
-    <SelectedDevice>Remote Device</SelectedDevice>
-    <SelectedPlatformGroup>RemoteDevice</SelectedPlatformGroup>
-    <ActiveDebugProfile>Remote Device</ActiveDebugProfile>
-    <DefaultDevice>iPhone 13 iOS 15.2</DefaultDevice>
+    <SelectedDevice>iPhone SE %283rd generation%29 iOS 15.4</SelectedDevice>
+    <SelectedPlatformGroup>Simulator</SelectedPlatformGroup>
+    <ActiveDebugProfile>iPhone SE %283rd generation%29 iOS 15.4</ActiveDebugProfile>
+    <DefaultDevice>iPhone SE %283rd generation%29 iOS 15.4</DefaultDevice>
   </PropertyGroup>
 </Project>

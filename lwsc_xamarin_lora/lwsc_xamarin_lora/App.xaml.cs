@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -20,9 +21,17 @@ namespace lwsc_xamarin_lora
             ExclusiveAddressUse = false,
             EnableBroadcast = true
         };
-        public static string IpAddress = "";
+
+        public static IPEndPoint RemoteEP;
+
         public static bool ShowInformation = false;
         public static bool Experimental = false;
+
+        public static DateTime LastGPSCheck;
+        public static RESTful.GPSStatus LastGPSResult = RESTful.GPSStatus.NOTAVAILIBLE;
+
+        public static string Username = "User";
+        public static string Password = "lwsc";
 
         public App()
         {
@@ -34,6 +43,13 @@ namespace lwsc_xamarin_lora
 
             DependencyService.Register<MockDataStore>();
             MainPage = new AppShell();
+
+            Task.Run(() =>
+            {
+                var resolvedIp = Dns.GetHostEntry("lwsc.ddns.net");
+                var dnsCache = resolvedIp.AddressList[0];
+                App.RemoteEP = new IPEndPoint(dnsCache, 8280);
+            });
         }
 
         private void OnUdpDataReceived(IAsyncResult result)
@@ -53,7 +69,11 @@ namespace lwsc_xamarin_lora
             var m = Regex.Match(val, @"WIFIBRIDGE ((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)) (ETH|WIFI)");
             if (m.Success)
             {
-                IpAddress = m.Groups[1].Value;
+                var ipAddress = IPAddress.Parse(m.Groups[1].Value);
+                App.RemoteEP = new IPEndPoint(ipAddress, 80);
+                DependencyService.Get<IMessage>().ShortAlert("WiFi Gateway connected!");
+                App.LastGPSResult = RESTful.GPSStatus.WIFI;
+                App.LastGPSCheck = DateTime.Now;
             } 
             else
             {

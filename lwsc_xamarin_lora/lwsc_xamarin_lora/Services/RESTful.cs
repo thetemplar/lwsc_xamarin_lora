@@ -7,15 +7,22 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace lwsc_xamarin_lora.Services
 {
-    internal class RESTful
+    public class RESTful
     {
-        static IPAddress _dnsCache;
-
+        public enum GPSStatus
+        {
+            NOTAVAILIBLE,
+            OUTOFRANGE_NEAR,
+            OUTOFRANGE_FAR,
+            INRANGE,
+            WIFI
+        }
 
         public enum RESTType
         {
@@ -29,64 +36,121 @@ namespace lwsc_xamarin_lora.Services
             public string result;
         }
 
-        static public bool IsInGPSRange(out double dist)
+        static public GPSStatus DoGPSCheck(bool force, bool verbose)
         {
-            dist = -1;
+            if (App.LastGPSResult != GPSStatus.WIFI && (force || (App.LastGPSCheck - DateTime.Now) > TimeSpan.FromMinutes(15)))
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    var p = await RESTful.CheckAndRequestLocationPermission();
+
+                    var r = await RESTful.IsInGPSRangeAsyncTimeout(2000);
+
+                    if (verbose)
+                        DependencyService.Get<IMessage>().ShortAlert(p.ToString() + Environment.NewLine + r.ToString());
+
+                    App.LastGPSCheck = DateTime.Now;
+                    App.LastGPSResult = r;
+                });
+            }
+            return App.LastGPSResult;
+        }
+
+        static public async Task<PermissionStatus> CheckAndRequestLocationPermission()
+        {
+            var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+
+            if (status == PermissionStatus.Granted)
+                return status;
+
+            if (status == PermissionStatus.Denied && DeviceInfo.Platform == DevicePlatform.iOS)
+            {
+                // Prompt the user to turn on in settings
+                // On iOS once a permission has been denied it may not be requested again from the application
+                DependencyService.Get<IMessage>().ShortAlert(" Prompt the user to turn on in settings.");
+                return status;
+            }
+
+            if (Permissions.ShouldShowRationale<Permissions.LocationWhenInUse>())
+            {
+                // Prompt the user with additional information as to why the permission is needed
+                DependencyService.Get<IMessage>().ShortAlert("Prompt the user with additional information as to why the permission is needed.");
+            }
+
+            status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+
+            return status;
+        }
+
+        static public async Task<GPSStatus> IsInGPSRangeAsyncTimeout(int ms)
+        {
+            var gpsTask = IsInGPSRangeAsync();
+            var r = await Task.WhenAny(gpsTask, Task.Delay(ms));
+            if (r == gpsTask)
+            {
+                await gpsTask;
+                return gpsTask.Result;
+            }
+            return GPSStatus.NOTAVAILIBLE;
+        }
+
+        static public async Task<GPSStatus> IsInGPSRangeAsync()
+        {
+            PermissionStatus s = PermissionStatus.Unknown;
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                s = await CheckAndRequestLocationPermission();
+            });
+            if(s != PermissionStatus.Granted)
+                return GPSStatus.NOTAVAILIBLE;
+
             try
             {
-                var location = Geolocation.GetLastKnownLocationAsync().Result;
+                var location = await Geolocation.GetLastKnownLocationAsync();
 
                 if (location == null)
                 {
-                    var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
+                    var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(5));
                     var cts = new CancellationTokenSource();
-                    cts.CancelAfter(TimeSpan.FromSeconds(10));
-                    location = Geolocation.GetLocationAsync(request, cts.Token).Result;
+
+                    location = await Geolocation.GetLocationAsync(request);
                 }
 
                 if (location != null)
                 {
                     Console.WriteLine($"Latitude: {location.Latitude}, Longitude: {location.Longitude}, Altitude: {location.Altitude}");
                     Location lwsc = new Location(50.651667, 9.422954);
-                    dist = Location.CalculateDistance(location, lwsc, DistanceUnits.Kilometers);
-                    if (dist <= 1)
-                        return true;
+                    var dist = Location.CalculateDistance(location, lwsc, DistanceUnits.Kilometers);
+                    if (dist <= 1.5)
+                        return GPSStatus.INRANGE;
+                    if (dist <= 5)
+                        return GPSStatus.OUTOFRANGE_NEAR;
+                    return GPSStatus.OUTOFRANGE_FAR;
                 }
             }
             catch (FeatureNotSupportedException fnsEx)
             {
                 DependencyService.Get<IMessage>().ShortAlert("GPS not supported.");
-                return false;
             }
             catch (FeatureNotEnabledException fneEx)
             {
                 DependencyService.Get<IMessage>().ShortAlert("GPS not enabled.");
-                return false;
             }
             catch (PermissionException pEx)
             {
                 DependencyService.Get<IMessage>().ShortAlert("GPS no permission.");
-                return false;
             }
             catch (Exception ex)
             {
                 DependencyService.Get<IMessage>().ShortAlert("GPS error.");
-                return false;
             }
-            return false;
+            return GPSStatus.NOTAVAILIBLE;
         }
 
 
         static public bool Fire(Machine item)
         {
-            if (App.IpAddress.Length == 0 && !IsInGPSRange(out double dist))
-            {
-                DependencyService.Get<IMessage>().ShortAlert("Nicht auf dem Gelände! (" + Math.Round(dist) + "km)");
-                return false;
-            }
-            //DependencyService.Get<IMessage>().ShortAlert("Auf dem Gelände, aber kein WLAN");
-
-            var status = RESTful.Query("/fire?id=" + item.MachineID + "&f_id=" + item.FunctionID, RESTful.RESTType.POST, out string res, true);
+            var status = RESTful.Query("/fire?username=" + App.Username + "&password=" + App.Password + "&id=" + item.MachineID + "&f_id=" + item.FunctionID, RESTful.RESTType.POST, out string res, true);
             if (status != HttpStatusCode.OK)
                 return false;
 
@@ -95,7 +159,7 @@ namespace lwsc_xamarin_lora.Services
             if (parsedJson.result == "success")
             {
                 if (App.ShowInformation)
-                    DependencyService.Get<IMessage>().ShortAlert(App.IpAddress + ": " + res);
+                    DependencyService.Get<IMessage>().ShortAlert(App.RemoteEP.Address + ": " + res);
 
                 try
                 {
@@ -118,7 +182,7 @@ namespace lwsc_xamarin_lora.Services
             else
             {
                 if (App.ShowInformation)
-                    DependencyService.Get<IMessage>().ShortAlert(App.IpAddress + ": " + res);
+                    DependencyService.Get<IMessage>().ShortAlert(App.RemoteEP.Address + ": " + res);
                 return false;
             }
 
@@ -127,59 +191,39 @@ namespace lwsc_xamarin_lora.Services
 
         static public HttpStatusCode UploadFile(string url, string path, out string result)
         {
-            IPEndPoint remoteEP;
-            IPAddress ipAddress;
-            if (App.IpAddress.Length > 0)
+            result = "";
+            var check = DoGPSCheck(false, false);
+            if (check != GPSStatus.WIFI && check != GPSStatus.INRANGE)
             {
-                ipAddress = IPAddress.Parse(App.IpAddress);
-                remoteEP = new IPEndPoint(ipAddress, 80);
-            }
-            else
-            {
-                if (_dnsCache == null)
-                {
-                    var resolvedIp = Dns.GetHostEntry("lwsc.ddns.net");
-                    _dnsCache = resolvedIp.AddressList[0];
-                }
-                ipAddress = _dnsCache;
-                remoteEP = new IPEndPoint(_dnsCache, 8280);
+                DependencyService.Get<IMessage>().ShortAlert("Nicht auf dem Gelände!");
+                return HttpStatusCode.Forbidden;
             }
 
             using (WebClient client = new WebClient())
             {
-                var resultBytes = client.UploadFile("http://" + remoteEP + "/upload", path);
+                var resultBytes = client.UploadFile("http://" + App.RemoteEP + "/upload", path);
                 result = Encoding.ASCII.GetString(resultBytes, 0, resultBytes.Length);
             }
 
             return HttpStatusCode.OK;
         }
 
-        static public HttpStatusCode Query(string url, RESTType type, out string result, bool fast = false)
+        static public HttpStatusCode Query(string url, RESTType type, out string result, bool everywhere = false, bool fast = false)
         {
             byte[] bytes = new byte[10240];
             result = "";
-            IPEndPoint remoteEP;
-            IPAddress ipAddress;
-            if (App.IpAddress.Length > 0)
+
+            var check = DoGPSCheck(false, false);
+            if (!everywhere && check != GPSStatus.WIFI && check != GPSStatus.INRANGE)
             {
-                ipAddress = IPAddress.Parse(App.IpAddress);
-                remoteEP = new IPEndPoint(ipAddress, 80);
-            }
-            else
-            {
-                if(_dnsCache == null)
-                {
-                    var resolvedIp = Dns.GetHostEntry("lwsc.ddns.net");
-                    _dnsCache = resolvedIp.AddressList[0];
-                }
-                ipAddress = _dnsCache;
-                remoteEP = new IPEndPoint(_dnsCache, 8280);
+                DependencyService.Get<IMessage>().ShortAlert("Nicht auf dem Gelände!");
+                return HttpStatusCode.Forbidden;
             }
 
             if (fast && App.Experimental)
             {
-                Socket sender = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                sender.Connect(remoteEP);
+                Socket sender = new Socket(App.RemoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                sender.Connect(App.RemoteEP);
 
                 string method;
                 switch (type)
@@ -218,7 +262,7 @@ namespace lwsc_xamarin_lora.Services
             }
             else
             {
-                var request = (HttpWebRequest)WebRequest.Create("http://" + remoteEP.ToString() + url);
+                var request = (HttpWebRequest)WebRequest.Create("http://" + App.RemoteEP.ToString() + url);
                 request.Timeout = 2000;
 
                 switch (type)

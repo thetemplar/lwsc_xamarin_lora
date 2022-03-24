@@ -13,7 +13,7 @@ namespace lwsc_xamarin_lora.Services
 
         public MockDataStore()
         {
-            var status = RESTful.Query("/all_functions", RESTful.RESTType.GET, out string res);
+            var status = RESTful.Query("/all_functions?username=" + App.Username + "&password=" + App.Password, RESTful.RESTType.GET, out string res, everywhere: true);
 
             if (res == null || res == "null")
                 return;

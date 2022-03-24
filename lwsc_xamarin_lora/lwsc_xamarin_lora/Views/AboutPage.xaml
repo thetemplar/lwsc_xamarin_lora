@@ -23,28 +23,53 @@
             Margin="20"
             Text="Willkommen beim LWSC!">
         </Label>
+
+
+        <Entry MaxLength="40" Margin="4" WidthRequest="100" x:Name="eUsername" Text="User">
+        </Entry>
+
+        <Entry MaxLength="40" Margin="4" WidthRequest="100" x:Name="ePassword" IsPassword="true" Text="lwsc">
+        </Entry>
+
+        <Button 
+            x:Name="btLogin"
+            Clicked="Login"
+            Padding="10"
+            Margin="10"
+            Text="Change User">
+
+        </Button>
+        
         <Button 
             Clicked="ShowIP"
             Text="Show Gateway-IP / Internet"
-            Padding="20"
-            Margin="20"
+            Padding="10"
+            Margin="10"
             >
 
         </Button>
         <Button 
             x:Name="btInformation"
             Clicked="ShowInformation"
-            Padding="20"
-            Margin="20"
+            Padding="10"
+            Margin="10"
             Text="Auslöse-Informationen anzeigen">
 
         </Button>
         <Button 
             x:Name="btExperimental"
             Clicked="EnableExperimental"
-            Padding="20"
-            Margin="20"
+            Padding="10"
+            Margin="10"
             Text="Experimental aktivieren">
+
+        </Button>
+        <Button 
+            x:Name="btGPS"
+            Clicked="TestGPS"
+            Padding="10"
+            Margin="10"
+            Text="GPS Test Button">
 
         </Button>
     </StackLayout>
