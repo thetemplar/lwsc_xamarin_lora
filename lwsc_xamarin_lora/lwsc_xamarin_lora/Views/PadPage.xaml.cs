@@ -15,6 +15,12 @@ using Xamarin.Forms.Xaml;
 
 namespace lwsc_xamarin_lora.Views
 {
+    class FileList
+    {
+        public List<string> files;
+    }
+        
+        
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class PadPage : ContentPage
     {
@@ -168,7 +174,17 @@ namespace lwsc_xamarin_lora.Views
             string p = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "pad_" + SaveName.Text.Replace("[", "").Replace("]", "").Replace(",", ".").Replace("\\", "").Replace("/", ""));
             File.WriteAllText(p, s);
 
-            RESTful.UploadFile("/upload?username=" + App.Username + "&password=" + App.Password, p, out string _);
+            var status = RESTful.UploadFile("/upload?username=" + App.Username + "&password=" + App.Password, p, out string _);
+            if (status == HttpStatusCode.Unauthorized)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Unauthorized.");
+                return;
+            }
+            if (status != HttpStatusCode.OK)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Error.");
+                return;
+            }
         }
 
         private void OnLoadCancelButtonClicked(object sender, EventArgs e)
@@ -184,6 +200,16 @@ namespace lwsc_xamarin_lora.Views
                 return;
             }
             var status = RESTful.Query("/file?username=" + App.Username + "&password=" + App.Password + "&filename=pad_" + overlay_load_picker.Items[overlay_load_picker.SelectedIndex], RESTful.RESTType.GET, out string res);
+            if (status == HttpStatusCode.Unauthorized)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Unauthorized.");
+                return;
+            }
+            if (status != HttpStatusCode.OK)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Error.");
+                return;
+            }
 
             var entries = res.Split(';');
 
@@ -206,16 +232,29 @@ namespace lwsc_xamarin_lora.Views
         private void ToolbarItem_Load(object sender, EventArgs e)
         {
             var status = RESTful.Query("/file_list?username=" + App.Username + "&password=" + App.Password + "", RESTful.RESTType.GET, out string res);
-            res = res.Replace("\"", "");
-            if(res.StartsWith("[") && res.EndsWith("]"))
+            if (status == HttpStatusCode.Unauthorized)
             {
-                string[] files = res.Replace("[", "").Replace("]", "").Split(',');
-                overlay_load_picker.Items.Clear();
-                if (files != null && files.Count() > 1)
-                    foreach (var file in files.Where(x => x.StartsWith("pad_")))
-                        overlay_load_picker.Items.Add(file.Substring(4));
+                DependencyService.Get<IMessage>().ShortAlert("Unauthorized.");
+                return;
             }
-            overlay_load.IsVisible = true;
+            if (status != HttpStatusCode.OK)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Error.");
+                return;
+            }
+
+            try
+            {
+                FileList parsedJson = JsonConvert.DeserializeObject<FileList>(res);
+                overlay_load_picker.Items.Clear();
+                for (int i = 0; i < parsedJson.files.Count(); i++)
+                    if (parsedJson.files[i].StartsWith("pad_"))
+                        overlay_load_picker.Items.Add(parsedJson.files[i].Substring(4));
+                overlay_load.IsVisible = true;
+            } catch
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Error parsing.");
+            }
         }
     }
 }

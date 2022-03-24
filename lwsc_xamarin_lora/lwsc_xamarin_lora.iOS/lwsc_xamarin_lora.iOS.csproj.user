@@ -1,13 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <DeveloperId>
-    </DeveloperId>
-    <DevelopmentTeamId>
-    </DevelopmentTeamId>
-    <SelectedDevice>iPhone SE %283rd generation%29 iOS 15.4</SelectedDevice>
-    <SelectedPlatformGroup>Simulator</SelectedPlatformGroup>
-    <ActiveDebugProfile>iPhone SE %283rd generation%29 iOS 15.4</ActiveDebugProfile>
+    <DeveloperId>kristian.graul%40googlemail.com</DeveloperId>
+    <DevelopmentTeamId>76W3D2733F</DevelopmentTeamId>
+    <SelectedDevice>Remote Device</SelectedDevice>
+    <SelectedPlatformGroup>RemoteDevice</SelectedPlatformGroup>
+    <ActiveDebugProfile>Remote Device</ActiveDebugProfile>
     <DefaultDevice>iPhone SE %283rd generation%29 iOS 15.4</DefaultDevice>
   </PropertyGroup>
 </Project>

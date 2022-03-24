@@ -3,7 +3,9 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using Xamarin.Forms;
 
 namespace lwsc_xamarin_lora.Services
 {
@@ -14,6 +16,16 @@ namespace lwsc_xamarin_lora.Services
         public MockDataStore()
         {
             var status = RESTful.Query("/all_functions?username=" + App.Username + "&password=" + App.Password, RESTful.RESTType.GET, out string res, everywhere: true);
+            if (status == HttpStatusCode.Unauthorized)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Unauthorized.");
+                return;
+            }
+            if (status != HttpStatusCode.OK)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Error.");
+                return;
+            }
 
             if (res == null || res == "null")
                 return;

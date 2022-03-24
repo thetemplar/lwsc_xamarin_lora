@@ -35,7 +35,7 @@
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.2.0</string>
+	<string>3.2.3</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Fill in a reason why your app needs access to location.</string>
 </dict>

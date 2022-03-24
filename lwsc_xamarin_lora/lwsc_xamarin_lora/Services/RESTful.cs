@@ -151,8 +151,16 @@ namespace lwsc_xamarin_lora.Services
         static public bool Fire(Machine item)
         {
             var status = RESTful.Query("/fire?username=" + App.Username + "&password=" + App.Password + "&id=" + item.MachineID + "&f_id=" + item.FunctionID, RESTful.RESTType.POST, out string res, true);
-            if (status != HttpStatusCode.OK)
+            if (status == HttpStatusCode.Unauthorized)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Unauthorized.");
                 return false;
+            }
+            if (status != HttpStatusCode.OK)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Error.");
+                return false;
+            }
 
             var parsedJson = JsonConvert.DeserializeObject<FireRes>(res);
 
@@ -201,8 +209,15 @@ namespace lwsc_xamarin_lora.Services
 
             using (WebClient client = new WebClient())
             {
-                var resultBytes = client.UploadFile("http://" + App.RemoteEP + "/upload", path);
-                result = Encoding.ASCII.GetString(resultBytes, 0, resultBytes.Length);
+                try
+                {
+                    var resultBytes = client.UploadFile("http://" + App.RemoteEP + "/upload?username=" + App.Username + "&password=" + App.Password, path);
+                    result = Encoding.ASCII.GetString(resultBytes, 0, resultBytes.Length);
+                }
+                catch (WebException ex)
+                {
+                    if (ex.Message.Contains("401")) return HttpStatusCode.Unauthorized;
+                }
             }
 
             return HttpStatusCode.OK;

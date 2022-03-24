@@ -50,6 +50,9 @@ namespace lwsc_xamarin_lora
                 var dnsCache = resolvedIp.AddressList[0];
                 App.RemoteEP = new IPEndPoint(dnsCache, 8280);
             });
+
+            Username = Preferences.Get("Username", "User");
+            Password = Preferences.Get("Password", "lwsc");
         }
 
         private void OnUdpDataReceived(IAsyncResult result)

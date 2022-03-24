@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
+using System.Net;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -30,6 +31,9 @@ namespace lwsc_xamarin_lora.Views
                     if (r == RESTful.GPSStatus.OUTOFRANGE_FAR)
                         DependencyService.Get<IMessage>().ShortAlert("GPS: Nicht auf dem Gelände! (>5km)");
                 }).Wait();
+
+            eUsername.Text = Preferences.Get("Username", "User");
+            ePassword.Text = Preferences.Get("Password", "lwsc");
         }
 
         private void ShowInformation(object sender, EventArgs e)
@@ -78,31 +82,46 @@ namespace lwsc_xamarin_lora.Views
         private void Login(object sender, EventArgs e)
         {
             var status = RESTful.Query("/check_user?username=" + eUsername.Text + "&password=" + ePassword.Text + "", RESTful.RESTType.GET, out string res);
+            if (status == HttpStatusCode.Unauthorized)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Unauthorized.");
+                return;
+            }
+            if (status != HttpStatusCode.OK)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Error.");
+                return;
+            }
 
             var parsedJson = JsonConvert.DeserializeObject<CheckUser>(res);
 
             if (parsedJson.result == "no auth")
-                DependencyService.Get<IMessage>().ShortAlert("User not found.");
+                DependencyService.Get<IMessage>().ShortAlert("User nicht gefunden.");
             else if (parsedJson.result == "wrong password")
-                DependencyService.Get<IMessage>().ShortAlert("Wrong Password.");
+                DependencyService.Get<IMessage>().ShortAlert("Falsches Password.");
             else if (parsedJson.result == "success")
             {
                 App.Username = eUsername.Text;
                 App.Password = ePassword.Text;
-                string r = "";
-                switch (parsedJson.rights)
-                {
-                    case "0": r = "Unknown"; break;
-                    case "1": r = "User"; break;
-                    case "2": r = "Manager"; break;
-                    case "3": r = "Admin"; break;
-                    default: r = "?!"; break;
-                }
-                DependencyService.Get<IMessage>().ShortAlert("Hello " + App.Username + "! (" + r + ")");
+                Preferences.Set("Username", eUsername.Text);
+                Preferences.Set("Password", ePassword.Text);
+                DependencyService.Get<IMessage>().ShortAlert("Hallo " + App.Username + "! (" + parsedJson.rights + ")");
             }
             else
                 DependencyService.Get<IMessage>().ShortAlert(res);
 
+        }
+
+        private void ForceIP(object sender, EventArgs e)
+        {
+            if (!eIP.Text.Contains(":"))
+                eIP.Text += ":80";
+            var ss = eIP.Text.Split(':');
+            var ipAddress = IPAddress.Parse(ss[0]);
+            App.RemoteEP = new IPEndPoint(ipAddress, int.Parse(ss[1]));
+            DependencyService.Get<IMessage>().ShortAlert("IP ist gesetzt!");
+            App.LastGPSResult = RESTful.GPSStatus.WIFI;
+            App.LastGPSCheck = DateTime.Now;
         }
     }
 }

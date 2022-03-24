@@ -18,9 +18,9 @@
     <StackLayout Orientation="Vertical" HorizontalOptions="Center">
         <Label
             HorizontalOptions="Center" 
-            Scale="2" 
-            Padding="30"
-            Margin="20"
+            Scale="1.7" 
+            Padding="10"
+            Margin="5"
             Text="Willkommen beim LWSC!">
         </Label>
 
@@ -34,41 +34,53 @@
         <Button 
             x:Name="btLogin"
             Clicked="Login"
-            Padding="10"
-            Margin="10"
-            Text="Change User">
+            Padding="5"
+            Margin="5"
+            Text="Anmelden">
+
+        </Button>
+
+        <Entry MaxLength="40" Margin="4" WidthRequest="100" x:Name="eIP">
+        </Entry>
+
+        <Button 
+            x:Name="btForceIp"
+            Clicked="ForceIP"
+            Padding="5"
+            Margin="5"
+            Text="Setze IP manuell">
 
         </Button>
         
         <Button 
             Clicked="ShowIP"
             Text="Show Gateway-IP / Internet"
-            Padding="10"
-            Margin="10"
+            Padding="5"
+            Margin="5"
             >
 
         </Button>
         <Button 
             x:Name="btInformation"
             Clicked="ShowInformation"
-            Padding="10"
-            Margin="10"
+            Padding="5"
+            Margin="5"
             Text="Auslöse-Informationen anzeigen">
 
         </Button>
         <Button 
             x:Name="btExperimental"
             Clicked="EnableExperimental"
-            Padding="10"
-            Margin="10"
+            Padding="5"
+            Margin="5"
             Text="Experimental aktivieren">
 
         </Button>
         <Button 
             x:Name="btGPS"
             Clicked="TestGPS"
-            Padding="10"
-            Margin="10"
+            Padding="5"
+            Margin="5"
             Text="GPS Test Button">
 
         </Button>
