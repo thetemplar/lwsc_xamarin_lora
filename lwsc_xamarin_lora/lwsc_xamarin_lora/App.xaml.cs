@@ -27,8 +27,37 @@ namespace lwsc_xamarin_lora
         public static bool ShowInformation = false;
         public static bool Experimental = false;
 
-        public static DateTime LastGPSCheck;
-        public static RESTful.GPSStatus LastGPSResult = RESTful.GPSStatus.NOTAVAILIBLE;
+        public static DateTime _lastGPSCheck;
+        public static RESTful.GPSStatus _lastGPSResult = RESTful.GPSStatus.NOTAVAILIBLE;
+
+        public static RESTful.GPSStatus GPSStatus
+        {
+            get {
+                if ((_lastGPSCheck - DateTime.Now) > TimeSpan.FromMinutes(15))
+                {
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        var p = await RESTful.CheckAndRequestLocationPermission();
+
+                        if (p == PermissionStatus.Denied)
+                        {
+                            _lastGPSResult = RESTful.GPSStatus.DENIED;
+                        }
+                        else
+                        {
+                            var r = await RESTful.IsInGPSRangeAsyncTimeout(2000);
+
+                            _lastGPSResult = r;
+                        }
+                        _lastGPSCheck = DateTime.Now;
+                    });
+                }
+                return _lastGPSResult;
+            }
+        }
+
+        public static bool AdminStatus;
+        public static bool WIFIStatus;
 
         public static string Username = "User";
         public static string Password = "lwsc";
@@ -75,8 +104,7 @@ namespace lwsc_xamarin_lora
                 var ipAddress = IPAddress.Parse(m.Groups[1].Value);
                 App.RemoteEP = new IPEndPoint(ipAddress, 80);
                 DependencyService.Get<IMessage>().ShortAlert("WiFi Gateway connected!");
-                App.LastGPSResult = RESTful.GPSStatus.WIFI;
-                App.LastGPSCheck = DateTime.Now;
+                WIFIStatus = true;
             } 
             else
             {

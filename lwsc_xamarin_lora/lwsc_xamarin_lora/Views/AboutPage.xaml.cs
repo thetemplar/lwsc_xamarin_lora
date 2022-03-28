@@ -76,7 +76,7 @@ namespace lwsc_xamarin_lora.Views
 
         private void TestGPS(object sender, EventArgs e)
         {
-            RESTful.DoGPSCheck(true, true);
+            DependencyService.Get<IMessage>().ShortAlert("GPS" + App.GPSStatus + Environment.NewLine + "Admin " + App.AdminStatus + Environment.NewLine + "WIFI " + App.WIFIStatus);
         }
 
         private void Login(object sender, EventArgs e)
@@ -106,6 +106,10 @@ namespace lwsc_xamarin_lora.Views
                 Preferences.Set("Username", eUsername.Text);
                 Preferences.Set("Password", ePassword.Text);
                 DependencyService.Get<IMessage>().ShortAlert("Hallo " + App.Username + "! (" + parsedJson.rights + ")");
+                if(parsedJson.rights == "Admin")
+                {
+                    App.AdminStatus = true;
+                }
             }
             else
                 DependencyService.Get<IMessage>().ShortAlert(res);
@@ -120,8 +124,8 @@ namespace lwsc_xamarin_lora.Views
             var ipAddress = IPAddress.Parse(ss[0]);
             App.RemoteEP = new IPEndPoint(ipAddress, int.Parse(ss[1]));
             DependencyService.Get<IMessage>().ShortAlert("IP ist gesetzt!");
-            App.LastGPSResult = RESTful.GPSStatus.WIFI;
-            App.LastGPSCheck = DateTime.Now;
+
+            App.WIFIStatus = true;
         }
     }
 }

@@ -18,10 +18,10 @@ namespace lwsc_xamarin_lora.Services
         public enum GPSStatus
         {
             NOTAVAILIBLE,
+            DENIED,
             OUTOFRANGE_NEAR,
             OUTOFRANGE_FAR,
-            INRANGE,
-            WIFI
+            INRANGE
         }
 
         public enum RESTType
@@ -36,25 +36,6 @@ namespace lwsc_xamarin_lora.Services
             public string result;
         }
 
-        static public GPSStatus DoGPSCheck(bool force, bool verbose)
-        {
-            if (App.LastGPSResult != GPSStatus.WIFI && (force || (App.LastGPSCheck - DateTime.Now) > TimeSpan.FromMinutes(15)))
-            {
-                MainThread.BeginInvokeOnMainThread(async () =>
-                {
-                    var p = await RESTful.CheckAndRequestLocationPermission();
-
-                    var r = await RESTful.IsInGPSRangeAsyncTimeout(2000);
-
-                    if (verbose)
-                        DependencyService.Get<IMessage>().ShortAlert(p.ToString() + Environment.NewLine + r.ToString());
-
-                    App.LastGPSCheck = DateTime.Now;
-                    App.LastGPSResult = r;
-                });
-            }
-            return App.LastGPSResult;
-        }
 
         static public async Task<PermissionStatus> CheckAndRequestLocationPermission()
         {
@@ -67,14 +48,14 @@ namespace lwsc_xamarin_lora.Services
             {
                 // Prompt the user to turn on in settings
                 // On iOS once a permission has been denied it may not be requested again from the application
-                DependencyService.Get<IMessage>().ShortAlert(" Prompt the user to turn on in settings.");
+                DependencyService.Get<IMessage>().ShortAlert("Turn on GPS in the Settings.");
                 return status;
             }
 
             if (Permissions.ShouldShowRationale<Permissions.LocationWhenInUse>())
             {
                 // Prompt the user with additional information as to why the permission is needed
-                DependencyService.Get<IMessage>().ShortAlert("Prompt the user with additional information as to why the permission is needed.");
+                DependencyService.Get<IMessage>().ShortAlert("GPS Permission is needed.");
             }
 
             status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
@@ -200,8 +181,7 @@ namespace lwsc_xamarin_lora.Services
         static public HttpStatusCode UploadFile(string url, string path, out string result)
         {
             result = "";
-            var check = DoGPSCheck(false, false);
-            if (check != GPSStatus.WIFI && check != GPSStatus.INRANGE)
+            if (!App.WIFIStatus && !App.AdminStatus && App.GPSStatus != GPSStatus.INRANGE)
             {
                 DependencyService.Get<IMessage>().ShortAlert("Nicht auf dem Gelände!");
                 return HttpStatusCode.Forbidden;
@@ -228,8 +208,7 @@ namespace lwsc_xamarin_lora.Services
             byte[] bytes = new byte[10240];
             result = "";
 
-            var check = DoGPSCheck(false, false);
-            if (!everywhere && check != GPSStatus.WIFI && check != GPSStatus.INRANGE)
+            if (!everywhere && !App.WIFIStatus && !App.AdminStatus && App.GPSStatus != GPSStatus.INRANGE)
             {
                 DependencyService.Get<IMessage>().ShortAlert("Nicht auf dem Gelände!");
                 return HttpStatusCode.Forbidden;
