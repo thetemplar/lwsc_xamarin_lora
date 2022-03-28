@@ -131,7 +131,13 @@ namespace lwsc_xamarin_lora.Services
 
         static public bool Fire(Machine item)
         {
-            var status = RESTful.Query("/fire?username=" + App.Username + "&password=" + App.Password + "&id=" + item.MachineID + "&f_id=" + item.FunctionID, RESTful.RESTType.POST, out string res, true);
+            var status = RESTful.Query("/fire?username=" + App.Username + "&password=" + App.Password + "&id=" + item.MachineID + "&f_id=" + item.FunctionID, RESTful.RESTType.POST, out string res, fast:true);
+
+            if (status == HttpStatusCode.NonAuthoritativeInformation)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Nicht auf dem Gelände.");
+                return false;
+            }
             if (status == HttpStatusCode.Unauthorized)
             {
                 DependencyService.Get<IMessage>().ShortAlert("Unauthorized.");
@@ -183,8 +189,7 @@ namespace lwsc_xamarin_lora.Services
             result = "";
             if (!App.WIFIStatus && !App.AdminStatus && App.GPSStatus != GPSStatus.INRANGE)
             {
-                DependencyService.Get<IMessage>().ShortAlert("Nicht auf dem Gelände!");
-                return HttpStatusCode.Forbidden;
+                return HttpStatusCode.NonAuthoritativeInformation;
             }
 
             using (WebClient client = new WebClient())
@@ -210,8 +215,7 @@ namespace lwsc_xamarin_lora.Services
 
             if (!everywhere && !App.WIFIStatus && !App.AdminStatus && App.GPSStatus != GPSStatus.INRANGE)
             {
-                DependencyService.Get<IMessage>().ShortAlert("Nicht auf dem Gelände!");
-                return HttpStatusCode.Forbidden;
+                return HttpStatusCode.NonAuthoritativeInformation;
             }
 
             if (fast && App.Experimental)

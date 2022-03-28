@@ -25,7 +25,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>LWSC Remote</string>
 	<key>CFBundleIdentifier</key>
-	<string>de.k4graul.lwsc_remote</string>
+	<string>de.k4graul.lwsc-remote</string>
 	<key>CFBundleVersion</key>
 	<string>3.2.5</string>
 	<key>UILaunchStoryboardName</key>

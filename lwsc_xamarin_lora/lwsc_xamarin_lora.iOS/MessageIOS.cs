@@ -32,23 +32,18 @@ namespace lwsc_xamarin_lora.iOS
             {
                 alertDelay = NSTimer.CreateScheduledTimer(seconds, (obj) =>
                 {
-                    dismissMessage();
+                    if (alert != null)
+                    {
+                        alert.DismissViewController(true, null);
+                    }
+                    if (alertDelay != null)
+                    {
+                        alertDelay.Dispose();
+                    }
                 });
                 alert = UIAlertController.Create(null, message, UIAlertControllerStyle.Alert);
                 UIApplication.SharedApplication.KeyWindow.RootViewController.PresentViewController(alert, true, null);
             });
-        }
-
-        void dismissMessage()
-        {
-            if (alert != null)
-            {
-                alert.DismissViewController(true, null);
-            }
-            if (alertDelay != null)
-            {
-                alertDelay.Dispose();
-            }
         }
     }
 }

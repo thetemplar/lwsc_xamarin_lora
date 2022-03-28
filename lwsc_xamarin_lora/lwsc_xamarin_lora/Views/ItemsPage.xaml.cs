@@ -21,6 +21,8 @@ namespace lwsc_xamarin_lora.Views
         ItemsViewModel _viewModel;
         ItemsViewModel _viewModelSelected;
 
+        bool _isSelectedView = false;
+
         public ItemsPage()
         {
             InitializeComponent();
@@ -39,12 +41,12 @@ namespace lwsc_xamarin_lora.Views
         private void functionList_ItemTapped(object sender, ItemTappedEventArgs e)
         {
             Machine item = e.Item as Machine;
-            _viewModelSelected.Items.Add(item);
 
-            if(RESTful.Fire(item))
-            {
+            if (!_isSelectedView)
+                _viewModelSelected.Items.Add(item);
+
+            if (RESTful.Fire(item) && !_isSelectedView)
                 this.functionList.SelectedItem = null;
-            }
         }
 
         private void ToolbarItem_Clicked(object sender, EventArgs e)
@@ -53,19 +55,23 @@ namespace lwsc_xamarin_lora.Views
             {
                 BindingContext = _viewModelSelected;
                 Mode.Text = "Alle zeigen";
-            } else
+                _isSelectedView = true;
+            }
+            else
             {
-                Mode.Text = "Selektierte";
                 BindingContext = _viewModel;
+                Mode.Text = "Selektierte";
+                _isSelectedView = false;
 
             }
         }
 
         private void ToolbarItem_Clear(object sender, EventArgs e)
         {
-            Mode.Text = "Selektierte";
             BindingContext = _viewModel;
             _viewModelSelected = new ItemsViewModel();
+            Mode.Text = "Selektierte";
+            _isSelectedView = false;
         }
     }
 }

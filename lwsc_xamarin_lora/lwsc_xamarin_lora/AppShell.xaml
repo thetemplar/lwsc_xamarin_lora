@@ -3,7 +3,8 @@
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
        xmlns:local="clr-namespace:lwsc_xamarin_lora.Views"
        Title="lwsc_xamarin_lora"
-       x:Class="lwsc_xamarin_lora.AppShell">
+       x:Class="lwsc_xamarin_lora.AppShell"
+       FlyoutBackgroundColor="White">
 
     <!--
         The overall app visual hierarchy is defined here, along with navigation.

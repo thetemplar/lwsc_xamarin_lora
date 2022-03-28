@@ -76,12 +76,12 @@ namespace lwsc_xamarin_lora.Views
 
         private void TestGPS(object sender, EventArgs e)
         {
-            DependencyService.Get<IMessage>().ShortAlert("GPS" + App.GPSStatus + Environment.NewLine + "Admin " + App.AdminStatus + Environment.NewLine + "WIFI " + App.WIFIStatus);
+            DependencyService.Get<IMessage>().ShortAlert("GPS " + App.GPSStatus + Environment.NewLine + "Admin " + App.AdminStatus + Environment.NewLine + "WIFI " + App.WIFIStatus);
         }
 
         private void Login(object sender, EventArgs e)
         {
-            var status = RESTful.Query("/check_user?username=" + eUsername.Text + "&password=" + ePassword.Text + "", RESTful.RESTType.GET, out string res);
+            var status = RESTful.Query("/check_user?username=" + eUsername.Text + "&password=" + ePassword.Text + "", RESTful.RESTType.GET, out string res, everywhere: true);
             if (status == HttpStatusCode.Unauthorized)
             {
                 DependencyService.Get<IMessage>().ShortAlert("Unauthorized.");

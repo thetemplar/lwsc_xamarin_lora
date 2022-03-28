@@ -38,5 +38,6 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+
     </RefreshView>
 </ContentPage>

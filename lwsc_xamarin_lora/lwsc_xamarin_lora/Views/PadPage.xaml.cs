@@ -175,6 +175,11 @@ namespace lwsc_xamarin_lora.Views
             File.WriteAllText(p, s);
 
             var status = RESTful.UploadFile("/upload?username=" + App.Username + "&password=" + App.Password, p, out string _);
+            if (status == HttpStatusCode.NonAuthoritativeInformation)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Nicht auf dem Gelände.");
+                return;
+            }
             if (status == HttpStatusCode.Unauthorized)
             {
                 DependencyService.Get<IMessage>().ShortAlert("Unauthorized.");
@@ -200,6 +205,11 @@ namespace lwsc_xamarin_lora.Views
                 return;
             }
             var status = RESTful.Query("/file?username=" + App.Username + "&password=" + App.Password + "&filename=pad_" + overlay_load_picker.Items[overlay_load_picker.SelectedIndex], RESTful.RESTType.GET, out string res);
+            if (status == HttpStatusCode.NonAuthoritativeInformation)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Nicht auf dem Gelände.");
+                return;
+            }
             if (status == HttpStatusCode.Unauthorized)
             {
                 DependencyService.Get<IMessage>().ShortAlert("Unauthorized.");
@@ -232,6 +242,11 @@ namespace lwsc_xamarin_lora.Views
         private void ToolbarItem_Load(object sender, EventArgs e)
         {
             var status = RESTful.Query("/file_list?username=" + App.Username + "&password=" + App.Password + "", RESTful.RESTType.GET, out string res);
+            if (status == HttpStatusCode.NonAuthoritativeInformation)
+            {
+                DependencyService.Get<IMessage>().ShortAlert("Nicht auf dem Gelände.");
+                return;
+            }
             if (status == HttpStatusCode.Unauthorized)
             {
                 DependencyService.Get<IMessage>().ShortAlert("Unauthorized.");
